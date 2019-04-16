@@ -21,7 +21,11 @@ set(${lib_name}_srcs
   Configuration.cpp
   Configuration.hpp
   Coordinate.hpp
+  Parallel.cpp
+  Parallel.hpp
   Simulation.cpp
+  SimulationImpl.cpp
+  SimulationImpl.hpp
   Simulation.hpp
   State.cpp
   State.hpp

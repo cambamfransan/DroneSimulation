@@ -9,16 +9,6 @@
 
 namespace
 {
-  std::map<std::string, ValueFunction> stringToFunction = {
-    {"n", ValueFunction::n},
-    {"1", ValueFunction::constant},
-    {"logn", ValueFunction::logn},
-    {"nlogn", ValueFunction::nlogn},
-    {"2d", ValueFunction::n2},
-    {"3n", ValueFunction::n3},
-    {"n^2", ValueFunction::nn},
-    {"n^3", ValueFunction::nnn}};
-
   std::map<ValueFunction, std::function<double(double)>> enumToFunction = {
     {ValueFunction::n, [](const double& d) { return d; }},
     {ValueFunction::constant, [](const double& d) { return 1; }},
@@ -126,8 +116,28 @@ namespace
   }
 } // namespace
 
+std::map<std::string, ValueFunction> stringToFunction = {
+  {"n", ValueFunction::n},
+  {"1", ValueFunction::constant},
+  {"logn", ValueFunction::logn},
+  {"nlogn", ValueFunction::nlogn},
+  {"2n", ValueFunction::n2},
+  {"3n", ValueFunction::n3},
+  {"n^2", ValueFunction::nn},
+  {"n^3", ValueFunction::nnn}};
+
+std::map<ValueFunction, std::string> functionToString = {
+  {ValueFunction::n, "n"},
+  {ValueFunction::constant, "1"},
+  {ValueFunction::logn, "logn"},
+  {ValueFunction::nlogn, "nlogn"},
+  {ValueFunction::n2, "2n"},
+  {ValueFunction::n3, "3n"},
+  {ValueFunction::nn, "n^2"},
+  {ValueFunction::nnn, "n^3"}};
+
 Configuration::Configuration(
-  const boost::filesystem::path& p) // TODO cyclomatic complexity
+  const boost::filesystem::path& p) 
 {
   std::ifstream t(p.string());
   std::string str(
@@ -158,6 +168,8 @@ void Configuration::parseConfig(const rapidjson::Value& obj)
   m_targets = configuration::parseTargets(obj);
   if (m_targetCount.empty() && m_targets.empty())
     throw std::runtime_error("Either Targets or TargetCount must be set");
+  if (!m_targetCount.empty() && !m_targets.empty())
+    throw std::runtime_error("Only one of Targets or TargetCount can be set");
   m_valueFunction = configuration::parseValueFunctions(obj);
   m_diffPercentage = configuration::parseDiff(obj);
   m_times = obj.FindMember("Times")->value.GetUint64();

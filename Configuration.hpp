@@ -7,8 +7,8 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
-#include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 #include "Coordinate.hpp"
 
@@ -24,6 +24,10 @@ enum class ValueFunction
   nnn
 };
 
+extern std::map<std::string, ValueFunction> stringToFunction;
+
+extern std::map<ValueFunction, std::string> functionToString;
+
 struct ValueFunctionPercentage
 {
   ValueFunction valueFunction;
@@ -37,9 +41,17 @@ public:
 
   void parseConfig(const rapidjson::Value& v);
 
-  std::vector<size_t> getTargetCount() { return m_targetCount; }
-
+  std::vector<Coordinate> getHomeLocations() { return m_homeLocations; }
   std::vector<std::vector<size_t>> getDrones() { return m_drones; }
+  std::vector<size_t> getTargetCount() { return m_targetCount; }
+  std::vector<std::vector<Coordinate>> getTargets() { return m_targets; }
+  std::vector<std::vector<ValueFunctionPercentage>> getValueFunction()
+  {
+    return m_valueFunction;
+  }
+  std::vector<Coordinate> getSizes() { return m_sizes; }
+  std::vector<double> getDiffPercentage() { return m_diffPercentage; }
+  size_t getTimes() { return m_times; }
 
 private:
   std::vector<Coordinate> m_homeLocations;
