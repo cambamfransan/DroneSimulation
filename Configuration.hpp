@@ -24,6 +24,8 @@ enum class ValueFunction
   nnn
 };
 
+extern std::map<ValueFunction, std::function<double(double)>> enumToFunction;
+
 extern std::map<std::string, ValueFunction> stringToFunction;
 
 extern std::map<ValueFunction, std::string> functionToString;

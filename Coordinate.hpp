@@ -5,6 +5,7 @@
 
 struct Coordinate
 {
+  Coordinate() : x(0), y(0){};
   Coordinate(size_t x, size_t y) : x(x), y(y){};
   size_t x;
   size_t y;

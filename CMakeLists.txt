@@ -21,14 +21,14 @@ set(${lib_name}_srcs
   Configuration.cpp
   Configuration.hpp
   Coordinate.hpp
-  Parallel.cpp
-  Parallel.hpp
-  Simulation.cpp
   SimulationImpl.cpp
   SimulationImpl.hpp
+  Simulation.cpp
   Simulation.hpp
   State.cpp
   State.hpp
+  Parallel.cpp
+  Parallel.hpp
   )
 
 source_group("" FILES ${${lib_name}_srcs})
@@ -53,6 +53,7 @@ set(test_exe TestDrones)
 
 set(${test_exe}_srcs
   ConfigurationTest.cpp
+  SimulationTest.cpp
   TestDrones.cpp
   )
 

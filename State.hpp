@@ -1,9 +1,8 @@
 #ifndef STATE_HPP
 #define STATE_HPP
 
-#include "Configuration.hpp"
-
 #include "Coordinate.hpp"
+#include "Simulation.hpp"
 
 struct TargetDeck
 {
@@ -13,21 +12,31 @@ struct TargetDeck
 
 struct Drone
 {
+  Drone(size_t battery,
+        Coordinate c,
+        std::function<double(double)> vf,
+        Coordinate t)
+    : batteryLifeLeft(battery), loc(c), valueFunction(vf), target(t)
+  {
+  }
+  size_t batteryLifeLeft;
   Coordinate loc;
-  bool done;
+  std::function<double(double)> valueFunction;
+  Coordinate target;
 };
 
-class State
+struct State
 {
-public:
   State(const boost::filesystem::path& p);
-  State(const Configuration& config);
+  State(const Task& task);
 
-private:
   std::vector<Drone> m_drones;
   TargetDeck m_targetDeck;
-  Configuration m_config;
+  double m_diffPercentage;
   bool m_done;
+  Coordinate m_homeLocation;
+  Coordinate m_size;
+  bool** m_map;
 };
 
 #endif // !STATE_HPP

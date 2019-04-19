@@ -9,15 +9,6 @@
 
 namespace
 {
-  std::map<ValueFunction, std::function<double(double)>> enumToFunction = {
-    {ValueFunction::n, [](const double& d) { return d; }},
-    {ValueFunction::constant, [](const double& d) { return 1; }},
-    {ValueFunction::logn, [](const double& d) { return log2(d); }},
-    {ValueFunction::nlogn, [](const double& d) { return d * log2(d); }},
-    {ValueFunction::n2, [](const double& d) { return 2 * d; }},
-    {ValueFunction::n3, [](const double& d) { return 3 * d; }},
-    {ValueFunction::nn, [](const double& d) { return d * d; }},
-    {ValueFunction::nnn, [](const double& d) { return d * d * d; }}};
 
   Coordinate getCoordinateFromObject(const rapidjson::Value& rapidjsonObject)
   {
@@ -116,6 +107,16 @@ namespace
   }
 } // namespace
 
+std::map<ValueFunction, std::function<double(double)>> enumToFunction = {
+  {ValueFunction::n, [](const double& d) { return d; }},
+  {ValueFunction::constant, [](const double& d) { return 1; }},
+  {ValueFunction::logn, [](const double& d) { return log2(d); }},
+  {ValueFunction::nlogn, [](const double& d) { return d * log2(d); }},
+  {ValueFunction::n2, [](const double& d) { return 2 * d; }},
+  {ValueFunction::n3, [](const double& d) { return 3 * d; }},
+  {ValueFunction::nn, [](const double& d) { return d * d; }},
+  {ValueFunction::nnn, [](const double& d) { return d * d * d; }}};
+
 std::map<std::string, ValueFunction> stringToFunction = {
   {"n", ValueFunction::n},
   {"1", ValueFunction::constant},
@@ -136,8 +137,7 @@ std::map<ValueFunction, std::string> functionToString = {
   {ValueFunction::nn, "n^2"},
   {ValueFunction::nnn, "n^3"}};
 
-Configuration::Configuration(
-  const boost::filesystem::path& p) 
+Configuration::Configuration(const boost::filesystem::path& p)
 {
   std::ifstream t(p.string());
   std::string str(
@@ -150,7 +150,6 @@ Configuration::Configuration(
 
     auto obj = d.GetObject();
     parseConfig(obj);
-
   }
   catch (const std::exception& ex)
   {
@@ -174,7 +173,6 @@ void Configuration::parseConfig(const rapidjson::Value& obj)
   m_diffPercentage = configuration::parseDiff(obj);
   m_times = obj.FindMember("Times")->value.GetUint64();
 }
-
 
 std::vector<Coordinate> configuration::parseHomeCoordinates(
   const rapidjson::Value& value)
