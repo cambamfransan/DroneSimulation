@@ -56,6 +56,19 @@ Result simulation::runSimulation(Task task)
 
 void simulation::solveState(State& state)
 {
+  if(state.m_targetDeck.left.empty())
+  {
+    size_t done(0);
+    for(auto&& d : state.m_drones)
+    {
+      if(d.loc == state.m_homeLocation) done++;
+    }
+    if (done == state.m_drones.size()) 
+    {
+      state.m_done = true;
+      return;
+    }
+  }
   size_t done(0);
   for (auto&& drone : state.m_drones)
   {

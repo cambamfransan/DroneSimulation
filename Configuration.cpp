@@ -109,7 +109,7 @@ namespace
 
 std::map<ValueFunction, std::function<double(double)>> enumToFunction = {
   {ValueFunction::n, [](const double& d) { return d; }},
-  {ValueFunction::constant, [](const double& d) { return 1; }},
+  {ValueFunction::constant, [](const double&) { return 1; }},
   {ValueFunction::logn, [](const double& d) { return log2(d); }},
   {ValueFunction::nlogn, [](const double& d) { return d * log2(d); }},
   {ValueFunction::n2, [](const double& d) { return 2 * d; }},
@@ -225,7 +225,7 @@ std::vector<size_t> configuration::parseTargetCount(
 std::vector<std::vector<Coordinate>> configuration::parseTargets(
   const rapidjson::Value& value)
 {
-  auto obj = value.FindMember("Targets");
+  auto obj = value.FindMember("TargetDeck");
   if (obj == value.MemberEnd()) return {};
   if (!obj->value.IsArray())
     throw std::runtime_error("Targets must be an array");

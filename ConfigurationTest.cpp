@@ -2,6 +2,16 @@
 #include <boost/test/unit_test.hpp>
 
 #include <rapidjson/document.h>
+
+namespace
+{
+  bool compareDoubles(const double& a, const double& b)
+  {
+    return std::abs(a - b) > .0001;
+  }
+
+}
+
 BOOST_AUTO_TEST_SUITE(ConfigurationTest)
 
 BOOST_AUTO_TEST_CASE(HomeLocationSize)
@@ -211,7 +221,7 @@ BOOST_AUTO_TEST_CASE(ValueFunctionTest)
     BOOST_CHECK(response.size() == 1);
     BOOST_CHECK(response[0].size() == 1);
     BOOST_CHECK(response[0][0].valueFunction == ValueFunction::nn);
-    BOOST_CHECK(response[0][0].percentage == 1);
+    BOOST_CHECK(compareDoubles(response[0][0].percentage, 1));
   }
   {
     std::string json("{\"ValueFunction\": [\"n^2\", \"n^3\", \"n\"]}");
@@ -221,13 +231,13 @@ BOOST_AUTO_TEST_CASE(ValueFunctionTest)
     BOOST_CHECK(response.size() == 3);
     BOOST_CHECK(response[0].size() == 1);
     BOOST_CHECK(response[0][0].valueFunction == ValueFunction::nn);
-    BOOST_CHECK(response[0][0].percentage == 1);
+    BOOST_CHECK(compareDoubles(response[0][0].percentage, 1));
     BOOST_CHECK(response[1].size() == 1);
     BOOST_CHECK(response[1][0].valueFunction == ValueFunction::nnn);
-    BOOST_CHECK(response[1][0].percentage == 1);
+    BOOST_CHECK(compareDoubles(response[1][0].percentage, 1));
     BOOST_CHECK(response[2].size() == 1);
     BOOST_CHECK(response[2][0].valueFunction == ValueFunction::n);
-    BOOST_CHECK(response[2][0].percentage == 1);
+    BOOST_CHECK(compareDoubles(response[2][0].percentage, 1));
   }
   {
     std::string json(
@@ -238,11 +248,11 @@ BOOST_AUTO_TEST_CASE(ValueFunctionTest)
     BOOST_CHECK(response.size() == 1);
     BOOST_CHECK(response[0].size() == 3);
     BOOST_CHECK(response[0][0].valueFunction == ValueFunction::nn);
-    BOOST_CHECK(response[0][0].percentage == .5);
+    BOOST_CHECK(compareDoubles(response[0][0].percentage, .5));
     BOOST_CHECK(response[0][1].valueFunction == ValueFunction::nnn);
-    BOOST_CHECK(response[0][1].percentage == .3);
+    BOOST_CHECK(compareDoubles(response[0][1].percentage, .3));
     BOOST_CHECK(response[0][2].valueFunction == ValueFunction::n);
-    BOOST_CHECK(response[0][2].percentage == .2);
+    BOOST_CHECK(compareDoubles(response[0][2].percentage, .2));
   }
   {
     std::string json(
@@ -254,19 +264,19 @@ BOOST_AUTO_TEST_CASE(ValueFunctionTest)
     BOOST_CHECK(response.size() == 2);
     BOOST_CHECK(response[0].size() == 3);
     BOOST_CHECK(response[0][0].valueFunction == ValueFunction::nn);
-    BOOST_CHECK(response[0][0].percentage == .5);
+    BOOST_CHECK(compareDoubles(response[0][0].percentage, .5));
     BOOST_CHECK(response[0][1].valueFunction == ValueFunction::nnn);
-    BOOST_CHECK(response[0][1].percentage == .3);
+    BOOST_CHECK(compareDoubles(response[0][1].percentage, .3));
     BOOST_CHECK(response[0][2].valueFunction == ValueFunction::n);
-    BOOST_CHECK(response[0][2].percentage == .2);
+    BOOST_CHECK(compareDoubles(response[0][2].percentage, .2));
 
     BOOST_CHECK(response[1].size() == 3);
     BOOST_CHECK(response[1][0].valueFunction == ValueFunction::nn);
-    BOOST_CHECK(response[1][0].percentage == .5);
+    BOOST_CHECK(compareDoubles(response[1][0].percentage, .5));
     BOOST_CHECK(response[1][1].valueFunction == ValueFunction::nnn);
-    BOOST_CHECK(response[1][1].percentage == .3);
+    BOOST_CHECK(compareDoubles(response[1][1].percentage, .3));
     BOOST_CHECK(response[1][2].valueFunction == ValueFunction::n);
-    BOOST_CHECK(response[1][2].percentage == .2);
+    BOOST_CHECK(compareDoubles(response[1][2].percentage, .2));
   }
 }
 
@@ -278,7 +288,7 @@ BOOST_AUTO_TEST_CASE(DiffPercentage)
     d.Parse(json.c_str());
     auto response = configuration::parseDiff(d.GetObject());
     BOOST_CHECK(response.size() == 1);
-    BOOST_CHECK(response[0] == .01);
+    BOOST_CHECK(compareDoubles(response[0], .01));
   }
   {
     std::string json("{\"DiffPercentage\": [0.01, 0.02, 0.03]}");
@@ -286,9 +296,9 @@ BOOST_AUTO_TEST_CASE(DiffPercentage)
     d.Parse(json.c_str());
     auto response = configuration::parseDiff(d.GetObject());
     BOOST_CHECK(response.size() == 3);
-    BOOST_CHECK(response[0] == .01);
-    BOOST_CHECK(response[1] == .02);
-    BOOST_CHECK(response[2] == .03);
+    BOOST_CHECK(compareDoubles(response[0], .01));
+    BOOST_CHECK(compareDoubles(response[1], .02));
+    BOOST_CHECK(compareDoubles(response[2], .03));
   }
 }
 

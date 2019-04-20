@@ -219,10 +219,10 @@ void state_serialization::serializeMap(rapidjson::Document& d,
                                        const Coordinate& size)
 {
   rapidjson::Value outer(rapidjson::kArrayType);
-  for (int i = 0; i < size.x; i++)
+  for (size_t i = 0; i < size.x; i++)
   {
     rapidjson::Value inner(rapidjson::kArrayType);
-    for (int j = 0; j < size.y; j++)
+    for (size_t j = 0; j < size.y; j++)
     {
       addSizetToArray(d, inner, map[i][j]);
     }

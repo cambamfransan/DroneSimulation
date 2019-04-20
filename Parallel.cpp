@@ -5,7 +5,7 @@
 #include <iostream>
 
 RunConfig::RunConfig(Configuration config)
-  : m_ioc(), m_optCork(m_ioc), m_pThreads(), m_config(config), m_results()
+  : m_ioc(), m_optCork(m_ioc), m_pThreads(), m_results(), m_resultsSize(), m_config(config)
 {
 }
 
@@ -28,7 +28,6 @@ void RunConfig::startTasks()
     m_config.getValueFunction());
   std::vector<Coordinate> sizes(m_config.getSizes());
   std::vector<double> diffPercentages(m_config.getDiffPercentage());
-  size_t times(m_config.getTimes());
   size_t totalTargets =
     !targetCounts.empty() ? targetCounts.size() : targets.size();
   m_resultsSize = homeLocations.size() * drones.size() * totalTargets *

@@ -1,0 +1,23 @@
+{
+    "Size": {
+        "x": 100,
+        "y": 50
+    },
+    "HomeLocation": {
+        "x": 4,
+        "y": 4
+    },
+    "TargetCount": 30,
+    "Drones": [
+        300,
+        300,
+        300
+    ],
+    "ValueFunction": [
+        {
+            "ValueFunctions": "nlogn",
+            "Percentage": 1
+        }
+    ],
+    "DiffPercentage": 0.5
+}

@@ -51,6 +51,8 @@ source_group("" FILES ${${exe_name}_srcs})
 add_executable(${exe_name} ${${exe_name}_srcs})
 target_link_libraries( ${exe_name} ${lib_name} )
 install(TARGETS ${exe_name} DESTINATION bin)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/Gui/ DESTINATION bin FILES_MATCHING PATTERN "*.py")
+install(FILES ${CMAKE_SOURCE_DIR}/Gui/config.1.json DESTINATION bin RENAME config.json)
 
 enable_testing()
 set(test_exe TestDrones)
