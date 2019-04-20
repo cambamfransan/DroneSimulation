@@ -27,6 +27,10 @@ set(${lib_name}_srcs
   Simulation.hpp
   State.cpp
   State.hpp
+  StateSerialization.cpp
+  StateSerialization.hpp
+  StateDeserialization.cpp
+  StateDeserialization.hpp
   Parallel.cpp
   Parallel.hpp
   )
@@ -55,6 +59,7 @@ set(${test_exe}_srcs
   ConfigurationTest.cpp
   SimulationTest.cpp
   TestDrones.cpp
+  StateTest.cpp
   )
 
 source_group("" FILES ${${test_exe}_srcs})

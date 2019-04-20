@@ -183,7 +183,6 @@ std::vector<Coordinate> configuration::parseHomeCoordinates(
 std::vector<Coordinate> configuration::parseSize(const rapidjson::Value& value)
 {
   auto c = getCoordinates(value, "Size");
-  std::cout << "" << std::endl;
   return c;
 }
 

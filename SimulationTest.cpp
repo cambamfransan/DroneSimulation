@@ -1,80 +1,131 @@
 #include "SimulationImpl.hpp"
 
-namespace
+#include <boost/test/unit_test.hpp>
+
+#include <iostream>
+
+BOOST_AUTO_TEST_SUITE(SimulationTest)
+
+BOOST_AUTO_TEST_CASE(GetDroneTarget)
 {
-  Coordinate getNewTarget(const State& state, const Drone& drone)
-  {
-    std::vector<std::pair<double, Coordinate>> dest;
-    // find possible destinations
-    for (auto&& t : state.m_targetDeck.left)
-    {
-      size_t dtt =
-        std::abs(static_cast<int>(t.x) - static_cast<int>(drone.loc.x)) +
-        std::abs(static_cast<int>(t.x) - static_cast<int>(drone.loc.x));
-      size_t dth = std::abs(static_cast<int>(state.m_homeLocation.x) -
-                            static_cast<int>(drone.loc.x)) +
-                   std::abs(static_cast<int>(state.m_homeLocation.x) -
-                            static_cast<int>(drone.loc.x));
-      if (dtt + dth > drone.batteryLifeLeft) continue;
-
-      dest.push_back(std::make_pair(drone.valueFunction(dtt), t));
-    }
-    if (dest.empty()) return state.m_homeLocation;
-
-    std::sort(
-      dest.begin(),
-      dest.end(),
-      [](const std::pair<double, Coordinate>& a,
-         const std::pair<double, Coordinate>& b) { return a.first > a.first; });
-    double lower = dest[0].first * (1 - state.m_diffPercentage);
-    size_t i;
-    for (i = 0; i < dest.size() && dest[i].first < lower; i++)
-      ;
-    dest.resize(i - 1);
-    srand(time(NULL));
-    return dest[rand() % dest.size()].second;
-  } // namespace
-
-} // namespace
-
-Result simulation::runSimulation(Task task)
-{
-  Result result;
-  for (size_t i = 0; i < task.m_times; i++)
-  {
-    State state(task);
-    while (!state.m_done)
-      solveState(state);
-    result.m_results[i] = state.m_targetDeck.hit.size();
-  }
-  return result;
+  std::vector<Coordinate> targets;
+  targets.emplace_back(5, 4);
+  targets.emplace_back(5, 3);
+  targets.emplace_back(5, 2);
+  targets.emplace_back(5, 1);
+  targets.emplace_back(5, 0);
+  std::vector<size_t> drones;
+  drones.emplace_back(10);
+  std::vector<ValueFunctionPercentage> valueFunctions;
+  valueFunctions.push_back({ValueFunction::nn, 1});
+  Task task(0,
+            Coordinate(5, 5),
+            drones,
+            5,
+            targets,
+            valueFunctions,
+            Coordinate(6, 6),
+            0,
+            1);
+  State state(task);
+  auto result = simulation::getNewTarget(state, state.m_drones[0]);
+  BOOST_CHECK(result == Coordinate(5, 0));
+  task.m_targets.emplace_back(0, 0);
+  task.m_targetCount++;
+  state = State(task);
+  result = simulation::getNewTarget(state, state.m_drones[0]);
+  BOOST_CHECK(result == Coordinate(5, 0));
+  task.m_drones[0] = 20;
+  state = State(task);
+  result = simulation::getNewTarget(state, state.m_drones[0]);
+  BOOST_CHECK(result == Coordinate(0, 0));
+  task.m_valueFunction[0] = {ValueFunction::constant, 1};
+  state = State(task);
+  result = simulation::getNewTarget(state, state.m_drones[0]);
+  BOOST_CHECK(result == Coordinate(5, 4));
 }
 
-void simulation::solveState(State& state)
+BOOST_AUTO_TEST_CASE(SolveStateTest)
 {
-  size_t done(0);
-  for (auto&& drone : state.m_drones)
-  {
-    if (!drone.batteryLifeLeft)
-    {
-      done++;
-      continue;
-    }
-    // solveDrone
-
-    // if at target or lost target, get new target
-    // if ((drone.target.x == drone.loc.x && drone.target.y == drone.loc.y) ||
-    if (!state.m_map[drone.target.x][drone.target.y])
-    {
-      drone.target = getNewTarget(state, drone);
-    }
-
-    if (drone.loc.x != drone.target.x)
-      drone.loc.x += drone.loc.x > drone.target.x ? -1 : 1;
-    else // (drone.loc.y != drone.target.y)
-      drone.loc.y += drone.loc.y > drone.target.y ? -1 : 1;
-    drone.batteryLifeLeft--;
-  }
-
-  if (done == state.m_drones.size()) state.m_done = true;
+  std::vector<Coordinate> targets;
+  targets.emplace_back(5, 1);
+  targets.emplace_back(0, 0);
+  targets.emplace_back(0, 5);
+  std::vector<size_t> drones;
+  drones.emplace_back(10);
+  std::vector<ValueFunctionPercentage> valueFunctions;
+  valueFunctions.push_back({ValueFunction::constant, 1});
+  Task task(0,
+            Coordinate(5, 5),
+            drones,
+            5,
+            targets,
+            valueFunctions,
+            Coordinate(6, 6),
+            0,
+            1);
+  State state(task);
+  simulation::solveState(state);
+  BOOST_CHECK(state.m_drones[0].loc.x == 5);
+  BOOST_CHECK(state.m_drones[0].loc.y == 4);
+  BOOST_CHECK(state.m_drones[0].optTarget.get() == Coordinate(5, 1));
+  BOOST_CHECK(!state.m_done);
 }
+
+BOOST_AUTO_TEST_CASE(runSimulationTest)
+{
+  {
+    std::vector<Coordinate> targets;
+    targets.emplace_back(5, 1);
+    targets.emplace_back(0, 0);
+    targets.emplace_back(0, 5);
+    std::vector<size_t> drones;
+    drones.emplace_back(100);
+    std::vector<ValueFunctionPercentage> valueFunctions;
+    valueFunctions.push_back({ValueFunction::n, 1});
+    Task task(0,
+              Coordinate(5, 5),
+              drones,
+              5,
+              targets,
+              valueFunctions,
+              Coordinate(6, 6),
+              0,
+              3);
+    auto result = simulation::runSimulation(task);
+    BOOST_CHECK(result.m_id == 0);
+    BOOST_CHECK(result.m_results.size() == 3);
+    for (size_t i = 0; i < result.m_results.size(); i++)
+      BOOST_CHECK(result.m_results[i] == 3);
+
+    BOOST_CHECK(result.m_taskString == "6 6,5 5,100 ,3,(5 1) (0 0) (0 5) ,n 1,0,3.");
+  }
+  {
+    std::vector<Coordinate> targets;
+    targets.emplace_back(5, 1);
+    targets.emplace_back(0, 0);
+    targets.emplace_back(0, 5);
+    std::vector<size_t> drones;
+    drones.emplace_back(100);
+    std::vector<ValueFunctionPercentage> valueFunctions;
+    valueFunctions.push_back({ValueFunction::n, 1});
+    Task task(0,
+              Coordinate(5, 5),
+              drones,
+              5,
+              targets,
+              valueFunctions,
+              Coordinate(6, 6),
+              0,
+              3);
+    auto result = simulation::runSimulation(task);
+    BOOST_CHECK(result.m_id == 0);
+    BOOST_CHECK(result.m_results.size() == 3);
+    for (size_t i = 0; i < result.m_results.size(); i++)
+      BOOST_CHECK(result.m_results[i] == 3);
+
+    BOOST_CHECK(result.m_taskString == "6 6,5 5,100 ,3,(5 1) (0 0) (0 5) ,n 1,0,3.");
+  }
+}
+
+BOOST_AUTO_TEST_SUITE_END()

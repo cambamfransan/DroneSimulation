@@ -3,7 +3,6 @@
 
 //#include "Parallel.hpp"
 #include "Configuration.hpp"
-#include "State.hpp"
 
 struct Task
 {
@@ -36,11 +35,5 @@ struct Result
   std::string m_taskString;
   std::vector<size_t> m_results;
 };
-
-namespace simulation
-{
-  Result runSimulation(Task task);
-
-}
 
 #endif // !SIMULATION_HPP

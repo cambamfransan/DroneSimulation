@@ -1,9 +1,17 @@
 #include "Parallel.hpp"
 #include "Simulation.hpp"
+#include "SimulationImpl.hpp"
+
+#include <iostream>
 
 RunConfig::RunConfig(Configuration config)
-  : m_ioc(), m_optCork(m_ioc), m_pThreads(), m_config(config)
+  : m_ioc(), m_optCork(m_ioc), m_pThreads(), m_config(config), m_results()
 {
+}
+
+RunConfig::~RunConfig()
+{
+  delete[] m_results;
 }
 
 void RunConfig::startTasks()
@@ -72,7 +80,8 @@ void RunConfig::helpRun(const Coordinate& home,
     {
       for (auto&& diff : diffPercentages)
       {
-        Task task(id++, home,
+        Task task(id++,
+                  home,
                   droneDeck,
                   targetCount,
                   targetDeck,
@@ -80,7 +89,7 @@ void RunConfig::helpRun(const Coordinate& home,
                   size,
                   diff,
                   times);
-        m_ioc.post([task, m_results = m_results]() {
+        m_ioc.post([ task, m_results = m_results ]() {
           Result result = simulation::runSimulation(task);
           m_results[result.m_id] = result;
         });
@@ -89,30 +98,23 @@ void RunConfig::helpRun(const Coordinate& home,
   }
 }
 
-//  ss << m_size.x << " " << m_size.y << ",";
-//ss << m_homeLocation.x << " " << m_homeLocation.y << ",";
-//vectSizeTToString(ss, m_drones);
-//ss << m_targetCount << ",";
-//if (m_printTargets) vectCoordToString(ss, m_targets);
-//vectValFuncToString(ss, m_valueFunction);
-//ss << m_diffPercentage << ",";
-//ss << m_times << ".";
-
 void RunConfig::outputTasks(const boost::filesystem::path& p)
 {
-  if(!boost::filesystem::exists(p.parent_path()))
-    throw std::runtime_error("please give a path where the directory already exists.");
+  if (!boost::filesystem::exists(p.parent_path()))
+    throw std::runtime_error(
+      "please give a path where the directory already exists.");
 
   std::ofstream fout(p.string());
 
   fout << "Results,,,,,,,,,\n";
-  fout << "Targets, Size, Home Location, Drones, Target Count, Targets, Value Function, Diff Percentage, Times\n";
+  fout << "Targets Hit, Size, Home Location, Drones, Target Count, Targets, "
+          "Value Function, Diff Percentage, Times\n";
   for (size_t i = 0; i < m_resultsSize; i++)
   {
     size_t targetsHit(0);
     for (auto&& j : m_results[i].m_results)
       targetsHit += j;
-    fout <<( float)targetsHit / (float)m_results[i].m_results.size() << ",";
-    fout << m_results[i].m_taskString << std::endl;
+    double avg = (double)targetsHit / (double)m_results[i].m_results.size();
+    fout << avg << "," << m_results[i].m_taskString << std::endl;
   }
 }

@@ -26,7 +26,7 @@ void vectSizeTToString(std::stringstream& ss, std::vector<size_t>& vec)
 void vectCoordToString(std::stringstream& ss, std::vector<Coordinate>& vec)
 {
   for (auto&& val : vec)
-    ss << val.x << " " << val.y << ",";
+    ss << "(" <<val.x << " " << val.y << ") ";
   ss << ",";
 }
 
@@ -49,11 +49,19 @@ Task::Task(size_t id,
     m_diffPercentage(diffPercentage),
     m_times(times)
 {
+  if (m_homeLocation.x >= m_size.x || m_homeLocation.y >= m_size.y)
+  {
+    std::cout << "Cannot set home location off of the board, setting it to "
+                 "closest point"
+              << std::endl;
+    m_homeLocation.x = m_size.x - 1;
+    m_homeLocation.y = m_size.y - 1;
+  }
   if (targets.empty())
   {
     srand(time(NULL));
     for (size_t i = 0; i < targetCount; i++)
-      targets.push_back(Coordinate(rand() % m_size.x, rand() % m_size.y));
+      m_targets.push_back(Coordinate(rand() % (m_size.x - 1), rand() % (m_size.y - 1)));
   }
   else
     m_targetCount = targets.size();
@@ -80,13 +88,6 @@ Result::Result(size_t id, std::string result)
 {
 }
 
-Result::Result() : m_id(0), m_taskString(""), m_results() {}
-
-Result simulation::runSimulation(Task task)
+Result::Result() : m_id(0), m_taskString(""), m_results()
 {
-  // TODO calculate simulation
-  Result toReturn(task.m_id, task.toString());
-  for (size_t i = 0; i < task.m_times; i++)
-    toReturn.m_results.push_back(i);
-  return toReturn;
 }

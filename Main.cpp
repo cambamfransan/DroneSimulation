@@ -6,6 +6,7 @@
 
 #include "Configuration.hpp"
 #include "Parallel.hpp"
+#include "SimulationImpl.hpp"
 
 int main(int argc, char** argv)
 {
@@ -45,7 +46,6 @@ int main(int argc, char** argv)
     RunConfig run(config);
     run.startTasks();
     run.outputTasks(argv[3]);
-    // solve configuration
   }
   else if (!std::strcmp(argv[1], "solveState"))
   {
@@ -53,10 +53,11 @@ int main(int argc, char** argv)
     {
       std::cout << "please give a path to a config file that exists"
                 << std::endl;
+      return EXIT_FAILURE;
     }
-    // load state
-    // solve state
-    // print state
+    State state(argv[2]);
+    simulation::solveState(state);
+    state.writeOut(argv[2]);
   }
 
   return EXIT_SUCCESS;
