@@ -18,8 +18,7 @@ BOOST_AUTO_TEST_CASE(GetDroneTarget)
   drones.emplace_back(10);
   std::vector<ValueFunctionPercentage> valueFunctions;
   valueFunctions.push_back({ValueFunction::nn, 1});
-  Task task(0,
-            Coordinate(5, 5),
+  Task task(Coordinate(5, 5),
             drones,
             5,
             targets,
@@ -55,8 +54,7 @@ BOOST_AUTO_TEST_CASE(SolveStateTest)
   drones.emplace_back(10);
   std::vector<ValueFunctionPercentage> valueFunctions;
   valueFunctions.push_back({ValueFunction::constant, 1});
-  Task task(0,
-            Coordinate(5, 5),
+  Task task(Coordinate(5, 5),
             drones,
             5,
             targets,
@@ -83,8 +81,7 @@ BOOST_AUTO_TEST_CASE(runSimulationTest)
     drones.emplace_back(100);
     std::vector<ValueFunctionPercentage> valueFunctions;
     valueFunctions.push_back({ValueFunction::n, 1});
-    Task task(0,
-              Coordinate(5, 5),
+    Task task(Coordinate(5, 5),
               drones,
               5,
               targets,
@@ -93,7 +90,6 @@ BOOST_AUTO_TEST_CASE(runSimulationTest)
               0,
               3);
     auto result = simulation::runSimulation(task);
-    BOOST_CHECK(result.m_id == 0);
     BOOST_CHECK(result.m_results.size() == 3);
     for (size_t i = 0; i < result.m_results.size(); i++)
       BOOST_CHECK(result.m_results[i] == 3);
@@ -109,8 +105,7 @@ BOOST_AUTO_TEST_CASE(runSimulationTest)
     drones.emplace_back(100);
     std::vector<ValueFunctionPercentage> valueFunctions;
     valueFunctions.push_back({ValueFunction::n, 1});
-    Task task(0,
-              Coordinate(5, 5),
+    Task task(Coordinate(5, 5),
               drones,
               5,
               targets,
@@ -119,7 +114,6 @@ BOOST_AUTO_TEST_CASE(runSimulationTest)
               0,
               3);
     auto result = simulation::runSimulation(task);
-    BOOST_CHECK(result.m_id == 0);
     BOOST_CHECK(result.m_results.size() == 3);
     for (size_t i = 0; i < result.m_results.size(); i++)
       BOOST_CHECK(result.m_results[i] == 3);

@@ -19,8 +19,7 @@ BOOST_AUTO_TEST_CASE(SolveStateTest)
   drones.emplace_back(16);
   std::vector<ValueFunctionPercentage> valueFunctions;
   valueFunctions.push_back({ValueFunction::logn, 1});
-  Task task(0,
-            Coordinate(4, 4),
+  Task task(Coordinate(4, 4),
             drones,
             5,
             targets,

@@ -30,8 +30,7 @@ void vectCoordToString(std::stringstream& ss, std::vector<Coordinate>& vec)
   ss << ",";
 }
 
-Task::Task(size_t id,
-           Coordinate homeLocation,
+Task::Task(Coordinate homeLocation,
            std::vector<size_t> drones,
            size_t targetCount,
            std::vector<Coordinate> targets,
@@ -39,8 +38,7 @@ Task::Task(size_t id,
            Coordinate size,
            double diffPercentage,
            size_t times)
-  : m_id(id),
-    m_homeLocation(homeLocation),
+  : m_homeLocation(homeLocation),
     m_drones(drones),
     m_targetCount(targetCount),
     m_targets(targets),
@@ -83,11 +81,11 @@ std::string Task::toString()
   return ss.str();
 }
 
-Result::Result(size_t id, std::string result)
-  : m_id(id), m_taskString(result), m_results()
+Result::Result(size_t m_targetCount, std::string result)
+  : m_targetCount(m_targetCount), m_taskString(result), m_results()
 {
 }
 
-Result::Result() : m_id(0), m_taskString(""), m_results()
+Result::Result() : m_targetCount(), m_taskString(""), m_results()
 {
 }

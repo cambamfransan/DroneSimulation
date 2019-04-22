@@ -3,22 +3,21 @@
 #include "SimulationImpl.hpp"
 
 #include <iostream>
+#include <mutex>
 
-RunConfig::RunConfig(Configuration config)
-  : m_ioc(), m_optCork(m_ioc), m_pThreads(), m_results(), m_resultsSize(), m_config(config)
+#include <boost/asio.hpp>
+
+RunConfig::RunConfig(Configuration config) : m_config(config)
 {
 }
 
 RunConfig::~RunConfig()
 {
-  delete[] m_results;
 }
 
-void RunConfig::startTasks()
+void RunConfig::startTasks(const boost::filesystem::path& p)
 {
-  for (uint64_t i = 0; i < std::thread::hardware_concurrency() - 1; i++)
-    m_pThreads.push_back(
-      std::make_shared<std::thread>([& m_ioc = m_ioc]() { m_ioc.run(); }));
+  boost::asio::thread_pool pool;
 
   std::vector<Coordinate> homeLocations(m_config.getHomeLocations());
   std::vector<std::vector<size_t>> drones(m_config.getDrones());
@@ -30,10 +29,16 @@ void RunConfig::startTasks()
   std::vector<double> diffPercentages(m_config.getDiffPercentage());
   size_t totalTargets =
     !targetCounts.empty() ? targetCounts.size() : targets.size();
-  m_resultsSize = homeLocations.size() * drones.size() * totalTargets *
-                  valueFunctionPercentage.size() * sizes.size() *
-                  diffPercentages.size();
-  m_results = new Result[m_resultsSize];
+
+  std::ofstream fout;
+  if (p.size() != 0)
+  {
+    fout.open(p.string());
+    fout << "Results,,,,,,,,,\n";
+    fout << "Average, Targets Hit, Size, Home Location, Drones, Target Count, "
+            "Targets, "
+            "Value Function, Diff Percentage, Times\n";
+  }
 
   for (auto&& home : homeLocations)
   {
@@ -43,26 +48,24 @@ void RunConfig::startTasks()
       {
         for (auto&& targetCount : targetCounts)
         {
-          helpRun(home, droneDeck, targetCount, {});
+          helpRun(fout, pool, home, droneDeck, targetCount, {});
         }
       }
       else
       {
         for (auto&& targetDeck : targets)
         {
-          helpRun(home, droneDeck, 0, targetDeck);
+          helpRun(fout, pool, home, droneDeck, 0, targetDeck);
         }
       }
     }
   }
-  m_optCork == boost::none;
-  m_ioc.stop();
-  m_ioc.run();
-  for (uint64_t i = 0; i < std::thread::hardware_concurrency() - 1; i++)
-    m_pThreads[i]->join();
+  pool.join();
 }
 
-void RunConfig::helpRun(const Coordinate& home,
+void RunConfig::helpRun(std::ofstream& fout,
+                        boost::asio::thread_pool& pool,
+                        const Coordinate& home,
                         const std::vector<size_t>& droneDeck,
                         const size_t& targetCount,
                         const std::vector<Coordinate>& targetDeck)
@@ -79,8 +82,7 @@ void RunConfig::helpRun(const Coordinate& home,
     {
       for (auto&& diff : diffPercentages)
       {
-        Task task(id++,
-                  home,
+        Task task(home,
                   droneDeck,
                   targetCount,
                   targetDeck,
@@ -88,32 +90,23 @@ void RunConfig::helpRun(const Coordinate& home,
                   size,
                   diff,
                   times);
-        m_ioc.post([ task, m_results = m_results ]() {
+        boost::asio::post(pool, [task, &fout]() {
+          static std::atomic<size_t> count;
           Result result = simulation::runSimulation(task);
-          m_results[result.m_id] = result;
+          std::cout << count++ << std::endl;
+          static std::mutex m;
+          if (fout.is_open())
+          {
+            size_t targetsHit(0);
+            for (auto&& j : result.m_results)
+              targetsHit += j;
+            double avg = (double)targetsHit / (double)result.m_results.size();
+            std::lock_guard<std::mutex> lock(m);
+            fout << avg / result.m_targetCount << "," << avg << ","
+                 << result.m_taskString << std::flush << std::endl;
+          }
         });
       }
     }
-  }
-}
-
-void RunConfig::outputTasks(const boost::filesystem::path& p)
-{
-  if (!boost::filesystem::exists(p.parent_path()))
-    throw std::runtime_error(
-      "please give a path where the directory already exists.");
-
-  std::ofstream fout(p.string());
-
-  fout << "Results,,,,,,,,,\n";
-  fout << "Targets Hit, Size, Home Location, Drones, Target Count, Targets, "
-          "Value Function, Diff Percentage, Times\n";
-  for (size_t i = 0; i < m_resultsSize; i++)
-  {
-    size_t targetsHit(0);
-    for (auto&& j : m_results[i].m_results)
-      targetsHit += j;
-    double avg = (double)targetsHit / (double)m_results[i].m_results.size();
-    fout << avg << "," << m_results[i].m_taskString << std::endl;
   }
 }

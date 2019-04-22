@@ -44,8 +44,7 @@ int main(int argc, char** argv)
     }
     Configuration config(argv[2]);
     RunConfig run(config);
-    run.startTasks();
-    run.outputTasks(argv[3]);
+    run.startTasks(argv[3]);
   }
   else if (!std::strcmp(argv[1], "solveState"))
   {

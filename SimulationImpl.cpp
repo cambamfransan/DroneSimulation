@@ -43,7 +43,7 @@ Coordinate simulation::getNewTarget(const State& state, const Drone& drone)
 
 Result simulation::runSimulation(Task task)
 {
-  Result result(task.m_id, task.toString());
+  Result result(task.m_targetCount, task.toString());
   for (size_t i = 0; i < task.m_times; i++)
   {
     State state(task);

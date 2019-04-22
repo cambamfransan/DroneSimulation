@@ -6,8 +6,7 @@
 
 struct Task
 {
-  Task(size_t id,
-       Coordinate homeLocation,
+  Task(Coordinate homeLocation,
        std::vector<size_t> drones,
        size_t targetCount,
        std::vector<Coordinate> targets,
@@ -15,7 +14,6 @@ struct Task
        Coordinate size,
        double diffPercentage,
        size_t times);
-  size_t m_id;
   Coordinate m_homeLocation;
   std::vector<size_t> m_drones;
   size_t m_targetCount;
@@ -30,8 +28,8 @@ struct Task
 struct Result
 {
   Result();
-  Result(size_t id, std::string result);
-  size_t m_id;
+  Result(size_t m_targetCount, std::string result);
+  size_t m_targetCount;
   std::string m_taskString;
   std::vector<size_t> m_results;
 };
