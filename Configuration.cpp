@@ -19,9 +19,9 @@ namespace
       throw std::runtime_error("Could not find x part of coordinate");
     if (y == obj.MemberEnd())
       throw std::runtime_error("Could not find y part of coordinate");
-    if (!x->value.IsUint64() || !y->value.IsUint64())
+    if (!x->value.IsUint() || !y->value.IsUint())
       throw std::runtime_error("x and y values must be unsigned integers");
-    return {x->value.GetUint64(), y->value.GetUint64()};
+    return {x->value.GetUint(), y->value.GetUint()};
   }
 
   Coordinate getCoordinateFromArray(const rapidjson::Value& rapidjsonObject)
@@ -30,9 +30,9 @@ namespace
     if (obj.Size() != 2)
       throw std::runtime_error(
         "If Coordinate is an array, there must be two and only two values");
-    if (!obj[0].IsUint64() || !obj[1].IsUint64())
+    if (!obj[0].IsUint() || !obj[1].IsUint())
       throw std::runtime_error("Coordinate values must be integers");
-    return {obj[0].GetUint64(), obj[1].GetUint64()};
+    return {obj[0].GetUint(), obj[1].GetUint()};
   }
 
   std::vector<Coordinate> getCoordinates(
@@ -71,10 +71,10 @@ namespace
     std::vector<size_t> toReturn;
     for (auto& val : rapidjsonVector)
     {
-      if (!val.IsUint64())
+      if (!val.IsUint())
         throw std::runtime_error(
           "Drones and TargetCount must be positive integers");
-      toReturn.push_back(val.GetUint64());
+      toReturn.push_back(val.GetUint());
     }
     return toReturn;
   }
@@ -171,7 +171,7 @@ void Configuration::parseConfig(const rapidjson::Value& obj)
     throw std::runtime_error("Only one of Targets or TargetCount can be set");
   m_valueFunction = configuration::parseValueFunctions(obj);
   m_diffPercentage = configuration::parseDiff(obj);
-  m_times = obj.FindMember("Times")->value.GetUint64();
+  m_times = obj.FindMember("Times")->value.GetUint();
 }
 
 std::vector<Coordinate> configuration::parseHomeCoordinates(
@@ -216,7 +216,7 @@ std::vector<size_t> configuration::parseTargetCount(
 {
   auto obj = value.FindMember("TargetCount");
   if (obj == value.MemberEnd()) return {};
-  if (obj->value.IsNumber()) return {obj->value.GetUint64()};
+  if (obj->value.IsNumber()) return {obj->value.GetUint()};
   if (!obj->value.IsArray())
     throw std::runtime_error("Target Count must be an integer or array");
   return getUintVector(obj->value);

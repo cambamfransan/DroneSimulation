@@ -11,9 +11,9 @@ namespace
     auto keyObj = obj.FindMember(key.c_str());
     if (keyObj == obj.MemberEnd())
       throw std::runtime_error("Could not find key: " + key);
-    if (!keyObj->value.IsUint64())
-      throw std::runtime_error(key + " must be a uint64");
-    return keyObj->value.GetUint64();
+    if (!keyObj->value.IsUint())
+      throw std::runtime_error(key + " must be a uint");
+    return keyObj->value.GetUint();
   }
 
   boost::optional<Coordinate> getCoordinate(const rapidjson::Value& obj,
@@ -38,7 +38,7 @@ namespace
     if (keyObj == obj.MemberEnd())
       throw std::runtime_error("Could not find key: " + key);
     if (!keyObj->value.IsString())
-      throw std::runtime_error(key + " must be a uint64");
+      throw std::runtime_error(key + " must be a uint");
     return stringToFunction[keyObj->value.GetString()];
   }
 
@@ -160,9 +160,9 @@ size_t** state_deserialization::parseMap(const rapidjson::Value& obj,
     j = 0;
     for (auto&& el : c)
     {
-      if (!el.IsUint64())
+      if (!el.IsUint())
         throw std::runtime_error("Each element must be a unsigned int");
-      toReturn[i][j] = el.GetUint64();
+      toReturn[i][j] = el.GetUint();
       j++;
     }
     i++;
