@@ -27,8 +27,6 @@ void RunConfig::startTasks(const boost::filesystem::path& p)
     m_config.getValueFunction());
   std::vector<Coordinate> sizes(m_config.getSizes());
   std::vector<double> diffPercentages(m_config.getDiffPercentage());
-  size_t totalTargets =
-    !targetCounts.empty() ? targetCounts.size() : targets.size();
 
   std::ofstream fout;
   if (p.size() != 0)
